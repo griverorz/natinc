@@ -1,0 +1,36 @@
+
+model {
+    for (i in 1:N) {
+        mu[i] <- inprod(controls[i,], beta)
+        logit(Q[i, 1]) <- tau[1] - mu[i]
+        p[i, 1] <- Q[i, 1]
+        
+        for(k in 2:(nchoices - 1)) {
+            logit(Q[i, k]) <- tau[k] - mu[i]
+            p[i, k] <- Q[i, k] - Q[i, k-1]
+        }
+        p[i, nchoices] <- 1 - Q[i, nchoices - 1]
+        
+        org[i] ~ dcat(p[i, 1:nchoices])
+    }
+    
+    tau[1] ~ dunif(-10, 10)
+    for(k in 1:(nchoices - 2)) {
+        delta[k] ~ dexp(2)
+        tau[k+1] <- tau[k] + delta[k] 
+    }
+    
+    for (j in 1:ncontrols) {
+        beta[j] ~ dnorm(0, 0.01)
+    }
+
+    diff <- beta[2] - beta[1]
+
+    for (i in 1:N) {
+        P[i, 1] <- p[i, 1]
+        for (k in 2:(nchoices - 1)) {
+            P[i, k] <- p[i, k] - p[i, k - 1]
+            diffP[i, k - 1] <- P[i, k] - P[i, k - 1]
+        }
+    }
+}

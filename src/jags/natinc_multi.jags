@@ -1,0 +1,30 @@
+
+model {
+    for (i in 1:N) {
+        
+        log(u[i, 1]) <- 0
+
+        for (k in 1:(nchoices - 1)) {
+            log(u[i, k + 1]) <- beta0[k] + inprod(controls[i, ], beta[k, ])
+        }
+
+        for (k in 1:nchoices) {
+            p[i, k] <- u[i, k]/sum(u[i, ])
+        }
+        
+        org[i] ~ dcat(p[i, ])        
+    }
+        
+    tau <- pow(sigma, -1/2)
+    
+    for (k in 1:(nchoices - 1)) {
+        beta0[k] ~ dnorm(0, 0)
+        beta[k, 1:ncontrols] ~ dmnorm(mu_beta, sigma_beta[,])
+    }
+
+    for (i in 1:N) {
+        for (k in 1:(nchoices - 1)) {
+            outp[i, k] <- p[i, k + 1] - p[i, k]
+        }
+    }
+}

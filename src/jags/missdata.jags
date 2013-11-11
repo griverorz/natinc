@@ -1,0 +1,10 @@
+
+model {
+    for (i in 1:N) {
+        miss[i] ~ dbern(p[i])
+        logit(p[i]) <- b0 + inprod(controls[i,], Beta)
+    }
+    
+    b0 ~ dnorm(0, 10E-5)
+    Beta ~ dmnorm(mu_Beta, sigma_Beta)
+}
